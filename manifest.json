@@ -1,0 +1,21 @@
+{
+  "manifest_version": 2,
+  "name": "Stock Extension",
+  "description": "Stock Extension",
+  "version": "1.0",
+  "permissions": [
+	"tabs",
+    "storage",
+	"https://query.yahooapis.com/",
+	"http://d.yimg.com/",
+	"unlimitedStorage"
+  ],
+  "browser_action": {
+    "default_icon": "image/wext_logo.png",
+	"default_popup": "ext_popup.html"
+  },
+  "content_security_policy": "script-src 'self' 'unsafe-eval' https://query.yahooapis.com/; object-src 'self'",
+  "background": { 
+	"page": "ext_background.html"
+  }
+}

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <script type="text/javascript" src="js/jquery-1.10.2.js"></script>
+    <script type="text/javascript" src="js/jquery.blockUI.js"></script>
+    <script type="text/javascript" src="js/jquery.cookie.js"></script>
+    <script type="text/javascript" src="js/ext_popup.js"></script>
+    <style type="text/css">
+        body {
+            width:735px;
+            font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+            font-size: 12px;
+            height: 555px;
+        }
+
+        img {
+            cursor:pointer;
+        }
+
+        .indexup {
+            color : #008800;
+            font-weight:bold;
+        }
+
+        .indexdown {
+            color: #CC0000;
+            font-weight: bold;
+        }
+
+        #StockExtHeaderRow {
+            font-weight:bold;
+        }
+
+        #StockMainTable {
+            width:100%;
+            text-align: left;
+        }
+
+            #StockMainTable th {
+                padding:5px;
+                border-bottom: 2px solid #6678b1;
+            }
+
+            #StockMainTable td {
+                padding:5px;
+                border-bottom: 1px solid #ccc;
+            }
+
+        .span_a {
+            font-size:12px;
+        }
+
+            .span_a:hover {
+                text-decoration:underline;
+                cursor:pointer;
+            }
+
+        .stock_title_tbl {
+            width:100%;
+        }
+
+        .stock_title_tbl {
+            text-align:center;
+            font-size:20px;
+        }
+
+        #stext_search {
+            border:1px solid #000000;
+            padding:5px;
+            width:200px;
+        }
+
+        .wxt_location_search_class {
+	        background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #ededed), color-stop(1, #dfdfdf) );
+	        background:-moz-linear-gradient( center top, #ededed 5%, #dfdfdf 100% );
+	        filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ededed', endColorstr='#dfdfdf');
+	        background-color:#ededed;
+	        -webkit-border-top-left-radius:0px;
+	        -moz-border-radius-topleft:0px;
+	        border-top-left-radius:0px;
+	        -webkit-border-top-right-radius:0px;
+	        -moz-border-radius-topright:0px;
+	        border-top-right-radius:0px;
+	        -webkit-border-bottom-right-radius:0px;
+	        -moz-border-radius-bottomright:0px;
+	        border-bottom-right-radius:0px;
+	        -webkit-border-bottom-left-radius:0px;
+	        -moz-border-radius-bottomleft:0px;
+	        border-bottom-left-radius:0px;
+	        text-indent:-2.6px;
+	        border:1px solid #dcdcdc;
+	        display:inline-block;
+	        color:#000000;
+	        font-family:arial;
+	        font-size:12px;
+	        font-weight:bold;
+	        font-style:normal;
+	        height:30px;
+	        line-height:25px;
+	        width:65px;
+	        text-decoration:none;
+	        text-align:center;
+        }
+
+        .wxt_location_search_class:hover {
+	        background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #dfdfdf), color-stop(1, #ededed) );
+	        background:-moz-linear-gradient( center top, #dfdfdf 5%, #ededed 100% );
+	        filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#dfdfdf', endColorstr='#ededed');
+	        background-color:#dfdfdf;
+        }
+
+        .wxt_location_search_class:active {
+	        position:relative;
+	        top:1px;
+        }
+
+        #stext_location_div {
+            height:450px;
+            overflow-x:hidden;
+            overflow-y:auto;
+        }
+
+            #stext_location_div table tr:hover {
+                cursor:pointer;
+                background-color:#EFEDEB;
+                text-decoration:underline;
+            }
+
+        #stext_location_div table {
+            width:100%;
+        }
+
+            #stext_location_div table td {
+                padding:10px;
+            }
+    </style>
+</head>
+    <body id="StockMainBody">
+        <div id="stext_main_div">
+            <table class="stock_title_tbl">
+                <tr>
+                    <td>
+                        Stock Summary
+                        <img src="image/Settings.png" style="width:16px;height:16px;float:right" title="Settings" id="stext_setting_icon"/>
+                    </td>
+                </tr>
+            </table>
+            <br />
+            <table id="StockMainTable" cellspacing="0">
+            </table>
+        </div>
+
+        <div id="stext_setting_div">
+            <table class="stock_title_tbl">
+                <tr>
+                    <td>
+                        <span>Settings</span>
+                        <img src="image/wextcross.svg" style="width:16px;height:16px;float:right" title="Close" id="stext_close_setting"/>
+                    </td>
+                </tr>
+            </table>
+
+            <table>
+                <tr>
+                    <td colspan="2">                            
+                        <span><b>Search:</b></span>
+                    </td>
+                </tr>
+                <tr>
+                    <!--Search Location -->
+                    <td>
+                        <input type="text" id="stext_search"/>
+                    </td>
+                    <td>
+                        <button class="wxt_location_search_class" id="stext_search_btn">Search</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <span style="font-size:10px">(Search Ex : GOOG)</span>
+                    </td>
+                </tr>
+            </table>
+            <div id="stext_location_div">
+
+            </div>
+        </div>
+
+    </body>
+</html>
+
+
+         
