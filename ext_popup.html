@@ -4,14 +4,17 @@
     <title></title>
     <script type="text/javascript" src="js/jquery-1.10.2.js"></script>
     <script type="text/javascript" src="js/jquery.blockUI.js"></script>
-    <script type="text/javascript" src="js/jquery.cookie.js"></script>
     <script type="text/javascript" src="js/ext_popup.js"></script>
     <style type="text/css">
         body {
             width:735px;
             font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
             font-size: 12px;
-            height: 555px;
+            height: 320px;
+        }
+
+        .stext_bold {
+            font-weight:bold;
         }
 
         img {
@@ -57,13 +60,16 @@
             }
 
         .stock_title_tbl {
+            background-color:#1A1A1B;
             width:100%;
-        }
-
-        .stock_title_tbl {
+            color:#FFFFFF;
             text-align:center;
             font-size:20px;
         }
+
+            .stock_title_tbl td {
+                padding:10px;
+            }
 
         #stext_search {
             border:1px solid #000000;
@@ -116,7 +122,7 @@
         }
 
         #stext_location_div {
-            height:450px;
+            height: 300px;
             overflow-x:hidden;
             overflow-y:auto;
         }
@@ -134,6 +140,15 @@
             #stext_location_div table td {
                 padding:10px;
             }
+
+        #stext_more_details_tbl {
+            width:100%;
+        }
+
+            #stext_more_details_tbl td {
+                padding:10px;
+                border-bottom: 1px solid #ccc;
+            }
     </style>
 </head>
     <body id="StockMainBody">
@@ -141,26 +156,88 @@
             <table class="stock_title_tbl">
                 <tr>
                     <td>
-                        Stock Summary
-                        <img src="image/Settings.png" style="width:16px;height:16px;float:right" title="Settings" id="stext_setting_icon"/>
+                        Stock Market Tracker
+                        <img src="image/Settings.png" style="width:16px;height:16px;float:right;margin-top: 5px;" title="Settings" id="stext_setting_icon"/>
                     </td>
                 </tr>
             </table>
             <br />
-            <table id="StockMainTable" cellspacing="0">
+            <table id="StockMainTable" cellspacing="0"></table>
+            <span id="stext_counter" style="font-size:10px"></span> &nbsp;<span style="font-size:10px">(Quotes Delayed by 20 min approx)</span>
+        </div>
+        <div id="stext_more_details">
+            <table class="stock_title_tbl">
+                <tr>
+                    <td>
+                        <span id="stext_more_detail_title"></span>
+                        <img src="image/close.png" style="width:16px;height:16px;float:left;margin-top: 5px;" title="Back" id="stext_back_1"/>
+                    </td>
+                </tr>
+            </table>
+            <table id="stext_more_details_tbl" cellspacing="0">
+                <tr>
+                    <td class="stext_bold"> Last Trade: </td>
+                    <td><span id="stext_lt"></span></td>
+                
+                    <td class="stext_bold">Change: </td>
+                    <td><span id="stext_chaneg"></span></td>
+                </tr>
+                <tr>
+                    <td class="stext_bold"> Prev Close: </td>
+                    <td><span id="stext_prev_close"></span></td>
+                
+                    <td class="stext_bold"> Day's Range: </td>
+                    <td><span id="stext_day_range"></span></td>
+                </tr>
+                <tr>
+                    <td class="stext_bold"> Open: </td>
+                    <td><span id="stext_open"></span></td>
+                
+                    <td class="stext_bold"> 52wk Range: </td>
+                    <td><span id="stext_52wk"></span></td>
+                </tr>
+                <tr>
+                    <td class="stext_bold"> Bid: </td>
+                    <td><span id="stext_bid"></span></td>
+                
+                    <td class="stext_bold"> Volume: </td>
+                    <td><span id="stext_vol"></span></td>
+                </tr>
+                <tr>
+                    <td class="stext_bold"> Ask: </td>
+                    <td><span id="stext_ask"></span></td>
+                
+                    <td class="stext_bold"> Avg Vol (3m): </td>
+                    <td><span id="stext_avgvol"></span></td>
+                </tr>
+                <tr>
+                    <td class="stext_bold"> 1y Target Est: </td>
+                    <td><span id="stext_1te"></span></td>
+                
+                    <td class="stext_bold"> Market Cap: </td>
+                    <td><span id="stext_mcap"></span></td>
+                </tr>
+                <tr>
+                    <td colspan="4" align="center">
+                        <span id="stext_chart"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4" align="right" id="download_all" style="border-bottom:0px">
+
+                    </td>
+                </tr>
             </table>
         </div>
-
         <div id="stext_setting_div">
             <table class="stock_title_tbl">
                 <tr>
                     <td>
                         <span>Settings</span>
-                        <img src="image/wextcross.svg" style="width:16px;height:16px;float:right" title="Close" id="stext_close_setting"/>
+                        <img src="image/close.png" style="width:16px;height:16px;float:left;margin-top: 5px;" title="Back" id="stext_close_setting"/>
                     </td>
                 </tr>
             </table>
-
             <table>
                 <tr>
                     <td colspan="2">                            
@@ -168,7 +245,6 @@
                     </td>
                 </tr>
                 <tr>
-                    <!--Search Location -->
                     <td>
                         <input type="text" id="stext_search"/>
                     </td>
@@ -182,11 +258,21 @@
                     </td>
                 </tr>
             </table>
-            <div id="stext_location_div">
-
-            </div>
+            <div id="stext_location_div"></div>
+            <br />
+            <table style="width:100%">
+                <tr>
+                    <td style="text-align:right;font-size:11px" >
+                        Developed By <a href="http://www.linkedin.com/in/mageshsankarsingh" target="_blank"> Magesh Sankar Singh</a> using <a href="http://finance.yahoo.com/" target="_blank">Yahoo Finance data.</a><br />
+                        Thanks to 
+                        <a href="https://www.iconfinder.com/iconsets/devine-icons-part-2" target="_blank">Ipanpun</a>,
+                        <a href="https://www.iconfinder.com/iconsets/fez" target="_blank">peleg TZ</a>, 
+                        <a href="https://www.iconfinder.com/iconsets/lullacons" target="_blank">Nathan Haug</a> & <a href="https://www.iconfinder.com/iconsets/tiny-icons" target="_blank">Dan King</a> for free icon sets.
+                    </td>
+                </tr>
+            </table>
         </div>
-
+        <div id="stext_preloaded_div"></div>
     </body>
 </html>
 

@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
-  "name": "Stock Extension",
-  "description": "Stock Extension",
+  "name": "Stock Market Tracker",
+  "description": "Stock Market Tracker",
   "version": "1.0",
   "permissions": [
 	"tabs",
@@ -14,8 +14,5 @@
     "default_icon": "image/wext_logo.png",
 	"default_popup": "ext_popup.html"
   },
-  "content_security_policy": "script-src 'self' 'unsafe-eval' https://query.yahooapis.com/; object-src 'self'",
-  "background": { 
-	"page": "ext_background.html"
-  }
+  "content_security_policy": "script-src 'self' 'unsafe-eval' https://query.yahooapis.com/; object-src 'self'"
 }
