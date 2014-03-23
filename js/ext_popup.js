@@ -1,10 +1,7 @@
-var stextMainArry = new Array();
 $(document).ready(function ($) {
     $("#stext_main_div").show();
     $("#stext_setting_div").hide();
     $("#stext_more_details").hide();
-
-    stockExtGetDetails();
 
     $("#stext_setting_icon").off("click");
     $("#stext_setting_icon").on("click", function (e) {
@@ -54,6 +51,8 @@ $(document).ready(function ($) {
             }
         }
     });
+
+    stockExtGetDetails(false);
 });
 
 function wextSearchStock() {
@@ -138,186 +137,266 @@ function getNewStextDetails(stname) {
     localStorage.setItem('stext_name', JSON.stringify(tempstockName));
     $("#stext_main_div").show();
     $("#stext_setting_div").hide();
-    stockExtGetDetails();
+    stockExtGetDetails(true);
 }
 
-function stockExtGetDetails() {
+function createStextTable() {
+
+    //Get Stock Details From Back Ground Process
+    var stextMainArryCreateTable = new Array();
+    if (localStorage.getItem('stext_details') == undefined) {
+        stextMainArryCreateTable = new Array();
+    } else {
+        stextMainArryCreateTable = JSON.parse(localStorage.getItem('stext_details'));
+    }
+
+    //Stock Name Check
+    var extStockNameCreateTable = new Array();
+    if (localStorage.getItem('stext_name') == undefined) {
+        extStockNameCreateTable = new Array();
+    } else {
+        extStockNameCreateTable = JSON.parse(localStorage.getItem('stext_name'));
+    }
+
+    //Update Counter
+    $("#stext_counter").html(stextMainArryCreateTable.length + "/5");
+
+    $("#StockMainTable").html("");
+    if (extStockNameCreateTable.length == 0) {
+        $("#stext_main_div").hide();
+        $("#stext_setting_div").show();
+        $("#stext_more_details").hide();
+    }
+
+    if (stextMainArryCreateTable.length == 0) {
+        $("#StockMainBody").block({
+            message: '<span style="font-size:20px;font-family: lucida grande,tahoma,verdana,arial,sans-serif;">No response from Yahoo server. Try again later.</span></h1>',
+        });
+    }
+
+    if (stextMainArryCreateTable.length > 0) {
+        var tr = $("<tr id='StockExtHeaderRow'>");
+        var td = $("<th>");
+        td.text("Symbol");
+        td.appendTo(tr);
+
+        var td = $("<th>");
+        td.text("Name");
+        td.appendTo(tr);
+
+        var td = $("<th>");
+        td.text("Last Trade");
+        td.appendTo(tr);
+
+        var td = $("<th>");
+        td.text("Change");
+        td.appendTo(tr);
+
+        var td = $("<th>");
+        td.text("Volume");
+        td.appendTo(tr);
+
+        var td = $("<th>");
+        td.text("");
+        td.appendTo(tr);
+
+        tr.appendTo("#StockMainTable");
+    }
+
+    $.each(stextMainArryCreateTable, function (index, item) {
+
+        var tr = $("<tr>");
+
+        //Symbol td
+        var td = $("<td>");
+        td.html(
+            (item.symbol != null ? item.symbol : "n/a")
+            + "<br/>" +
+            (item.StockExchange != null ? item.StockExchange : "n/a")
+            );
+        td.appendTo(tr);
+
+        if (item.symbol != null) {
+            var prdimg = '<img src="http://chart.finance.yahoo.com/t?s=' + item.symbol + '&amp;lang=en-US&amp;region=US&amp;width=300&amp;height=180" width="1" height="1">';
+            $("#stext_preloaded_div").append(prdimg);
+        }
+
+        //Name Td
+        var td = $("<td>");
+        td.text(
+            item.Name != null ? item.Name : "n/a"
+            );
+        td.appendTo(tr);
+
+        //Last Trade
+        var td = $("<td>");
+        td.html(
+            (item.LastTradeDate != null ? item.LastTradeDate : "n/a")
+            + " " +
+            (item.LastTradeTime != null ? item.LastTradeTime : "n/a")
+            + "<br/> <b>" +
+            (item.LastTradePriceOnly != null ? item.LastTradePriceOnly : "n/a")
+            + "</b>"
+            );
+        td.appendTo(tr);
+
+        //Change
+        if (item.ChangeRealtime != null) {
+            var img = ""
+            var changeValSymbol = item.ChangeRealtime.substring(0, 1);
+            var td_class = "indexup";
+            if (changeValSymbol == "+") {
+                img = '<img src="image/IndexUp.png" />';
+                td_class = "indexup";
+            } else {
+                img = '<img src="image/IndexDown.png" />';
+                td_class = "indexdown";
+            }
+
+            var Change = item.ChangeRealtime.replace("+", "");
+            Change = Change.replace("-", "");
+
+            var PercentChange = (item.PercentChange != null ? item.PercentChange.replace("+", "") : "n/a");
+            PercentChange = PercentChange.replace("-", "");
+
+            var td = $("<td>");
+            td.html(img + Change + "<br/>(" + PercentChange + ")");
+            td.addClass(td_class);
+        } else {
+            var td = $("<td>");
+            td.html("n/a");
+        }
+        td.appendTo(tr);
+
+        //Volume
+        var td = $("<td>");
+        td.html(item.Volume != null ? item.Volume.replace(/(\d)(?=(\d{3})+(?!\d))/g, "1,") : "n/a");
+        td.appendTo(tr);
+
+        //Delete
+        var td = $("<td align='center'>");
+        td.html('<span class="span_a" id="span_stext_info_' + index + '"><img src="image/info.png" title="More Info" /></span>&nbsp;<span class="span_a" id="span_delete_' + index + '"><img src="image/delete.png" title="Delete" /></span>');
+        td.appendTo(tr);
+
+        //Add To Main Table
+        tr.appendTo("#StockMainTable");
+
+        $("#span_delete_" + index).off("click");
+        $("#span_delete_" + index).on("click", function (e) {
+            deleteStck(item.symbol);
+        });
+
+        $("#span_stext_info_" + index).off("click");
+        $("#span_stext_info_" + index).on("click", function (e) {
+            showStextDetail(index);
+        });
+    });
+
+    $("#StockMainBody").unblock();
+}
+
+function stockExtGetDetails(isNewExtPush) {
     $("#StockMainBody").block({
         message: '<span style="font-size:20px;font-family: lucida grande,tahoma,verdana,arial,sans-serif;">Loading ...</span></h1>',
     });
     $("#stext_preloaded_div").html("");
+
+    //Stock Name Check
     var extStockName = ["FB", "GOOG", "EBAY", "YHOO", "AAPL"];
     if (localStorage.getItem('stext_name') == undefined) {
         localStorage.setItem('stext_name', JSON.stringify(extStockName));
     } else {
         extStockName = JSON.parse(localStorage.getItem('stext_name'));
     }
-    stextMainArry = new Array();    
-    var stockURL = "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quotes%20where%20symbol%20in%20('" + extStockName.join("'%2C%20'") + "')&env=http://datatables.org/alltables.env&format=json&diagnostics=true&callback=";
-    $.ajax({
-        type: 'GET',
-        url: stockURL,
-        dataType: 'json',
-        success: function (data) {
-            if (data.query.count == 1) {
-                stextMainArry.push(data.query.results.quote);
-            }
 
-            if (data.query.count > 1) {
-                $.each(data.query.results.quote, function (index, item) {
-                    stextMainArry.push(item);
-                });
-            }
+    //Get Stock Details From Back Ground Process
+    var stextMainArry = new Array();
+    if (localStorage.getItem('stext_details') == undefined) {
+        stextMainArry = new Array();
+    } else {
+        stextMainArry = JSON.parse(localStorage.getItem('stext_details'));
+    }
 
-            //Update Counter
-            $("#stext_counter").html(stextMainArry.length + "/5");
+    //If BackGround Data Not Ther
+    if (stextMainArry.length == 0) {
+        var stockURL = "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quotes%20where%20symbol%20in%20('" + extStockName.join("'%2C%20'") + "')&env=http://datatables.org/alltables.env&format=json&diagnostics=true&callback=";
+        $.ajax({
+            type: 'GET',
+            url: stockURL,
+            dataType: 'json',
+            success: function (data) {
+                stextMainArry = new Array();
 
-            $("#StockMainTable").html("");
-            if (extStockName.length == 0) {
-                $("#stext_main_div").hide();
-                $("#stext_setting_div").show();
-                $("#stext_more_details").hide();
-            }
+                if (data.query.count == 1) {
+                    stextMainArry.push(data.query.results.quote);
+                }
 
-            if (stextMainArry.length == 0) {
+                if (data.query.count > 1) {
+                    $.each(data.query.results.quote, function (index, item) {
+                        stextMainArry.push(item);
+                    });
+                }
+
+                localStorage.setItem('stext_details', JSON.stringify(stextMainArry));
+                createStextTable();
+            },
+            error: function (e) {
                 $("#StockMainBody").block({
                     message: '<span style="font-size:20px;font-family: lucida grande,tahoma,verdana,arial,sans-serif;">No response from Yahoo server. Try again later.</span></h1>',
                 });
             }
+        });
+    } else if (stextMainArry.length > 0 && isNewExtPush == true){
+        var stockURL = "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quotes%20where%20symbol%20in%20('" + extStockName.join("'%2C%20'") + "')&env=http://datatables.org/alltables.env&format=json&diagnostics=true&callback=";
+        $.ajax({
+            type: 'GET',
+            url: stockURL,
+            dataType: 'json',
+            success: function (data) {
+                stextMainArry = new Array();
 
-            if (stextMainArry.length > 0) {
-                var tr = $("<tr id='StockExtHeaderRow'>");
-                var td = $("<th>");
-                td.text("Symbol");
-                td.appendTo(tr);
+                if (data.query.count == 1) {
+                    stextMainArry.push(data.query.results.quote);
+                }
 
-                var td = $("<th>");
-                td.text("Name");
-                td.appendTo(tr);
+                if (data.query.count > 1) {
+                    $.each(data.query.results.quote, function (index, item) {
+                        stextMainArry.push(item);
+                    });
+                }
 
-                var td = $("<th>");
-                td.text("Last Trade");
-                td.appendTo(tr);
-
-                var td = $("<th>");
-                td.text("Change");
-                td.appendTo(tr);
-
-                var td = $("<th>");
-                td.text("Volume");
-                td.appendTo(tr);
-
-                var td = $("<th>");
-                td.text("");
-                td.appendTo(tr);
-
-                tr.appendTo("#StockMainTable");                
+                localStorage.setItem('stext_details', JSON.stringify(stextMainArry));
+                createStextTable();
+            },
+            error: function (e) {
+                $("#StockMainBody").block({
+                    message: '<span style="font-size:20px;font-family: lucida grande,tahoma,verdana,arial,sans-serif;">No response from Yahoo server. Try again later.</span></h1>',
+                });
             }
-
-            $.each(stextMainArry, function (index, item) {
-
-                var tr = $("<tr>");
-
-                //Symbol td
-                var td = $("<td>");
-                td.html(
-                    (item.symbol != null ? item.symbol : "n/a")
-                    + "<br/>" +
-                    (item.StockExchange != null ? item.StockExchange : "n/a")
-                    );
-                td.appendTo(tr);
-
-                if (item.symbol != null) {
-                    var prdimg = '<img src="http://chart.finance.yahoo.com/t?s=' + item.symbol + '&amp;lang=en-US&amp;region=US&amp;width=300&amp;height=180" width="1" height="1">';
-                    $("#stext_preloaded_div").append(prdimg);
-                }
-
-                //Name Td
-                var td = $("<td>");
-                td.text(
-                    item.Name != null ? item.Name : "n/a"
-                    );
-                td.appendTo(tr);
-
-                //Last Trade
-                var td = $("<td>");
-                td.html(
-                    (item.LastTradeDate != null ? item.LastTradeDate : "n/a")
-                    + " " +
-                    (item.LastTradeTime != null ? item.LastTradeTime : "n/a")
-                    + "<br/> <b>" +
-                    (item.LastTradePriceOnly != null ? item.LastTradePriceOnly : "n/a")
-                    + "</b>"
-                    );
-                td.appendTo(tr);
-
-                //Change
-                if (item.ChangeRealtime != null) {
-                    var img = ""
-                    var changeValSymbol = item.ChangeRealtime.substring(0, 1);
-                    var td_class = "indexup";
-                    if (changeValSymbol == "+") {
-                        img = '<img src="image/IndexUp.png" />';
-                        td_class = "indexup";
-                    } else {
-                        img = '<img src="image/IndexDown.png" />';
-                        td_class = "indexdown";
-                    }
-
-                    var Change = item.ChangeRealtime.replace("+", "");
-                    Change = Change.replace("-", "");
-
-                    var PercentChange = (item.PercentChange != null ? item.PercentChange.replace("+", "") : "n/a");
-                    PercentChange = PercentChange.replace("-", "");
-
-                    var td = $("<td>");
-                    td.html(img + Change + "<br/>(" + PercentChange + ")");
-                    td.addClass(td_class);
-                } else {
-                    var td = $("<td>");
-                    td.html("n/a");
-                }
-                td.appendTo(tr);
-
-                //Volume
-                var td = $("<td>");
-                td.html(item.Volume != null ? item.Volume.replace(/(\d)(?=(\d{3})+(?!\d))/g, "1,") : "n/a");
-                td.appendTo(tr);
-
-                //Delete
-                var td = $("<td align='center'>");
-                td.html('<span class="span_a" id="span_stext_info_' + index + '"><img src="image/info.png" title="More Info" /></span>&nbsp;<span class="span_a" id="span_delete_' + index + '"><img src="image/delete.png" title="Delete" /></span>');
-                td.appendTo(tr);
-
-                //Add To Main Table
-                tr.appendTo("#StockMainTable");
-
-                $("#span_delete_" + index).off("click");
-                $("#span_delete_" + index).on("click", function (e) {
-                    deleteStck(item.symbol);
-                });
-
-                $("#span_stext_info_" + index).off("click");
-                $("#span_stext_info_" + index).on("click", function (e) {
-                    showStextDetail(index);
-                });
-            });
-
-            $("#StockMainBody").unblock();
-        },
-        error: function (e) {
-            $("#StockMainBody").block({
-                message: '<span style="font-size:20px;font-family: lucida grande,tahoma,verdana,arial,sans-serif;">No response from Yahoo server. Try again later.</span></h1>',
-            });
-        }
-    });
+        });
+    } else {
+        createStextTable();
+    }
 }
 
 function showStextDetail(pos) {
+    //Get Stock Details From Back Ground Process
+    var stextMainArryShowDetails = new Array();
+    if (localStorage.getItem('stext_details') == undefined) {
+        stextMainArryShowDetails = new Array();
+    } else {
+        stextMainArryShowDetails = JSON.parse(localStorage.getItem('stext_details'));
+    }
+
+    if (stextMainArryShowDetails.length == 0) {
+        return;
+    }
+
     $("#stext_main_div").hide();
     $("#stext_setting_div").hide();
     $("#stext_more_details").show();
-    var stextdetail = stextMainArry[pos];
+
+    var stextdetail = stextMainArryShowDetails[pos];
 
     $("#stext_lt").html(
         ((stextdetail.LastTradeDate != null) ? stextdetail.LastTradeDate : "n/a")
@@ -347,6 +426,8 @@ function showStextDetail(pos) {
         PercentChange = PercentChange.replace("-", "");
 
         $("#stext_chaneg").html(img + Change + "<br/>(" + PercentChange + ")");
+        $("#stext_chaneg").removeClass("indexup");
+        $("#stext_chaneg").removeClass("indexdown");
         $("#stext_chaneg").addClass(td_class);
     } else {
         $("#stext_chaneg").html("n/a");
@@ -422,13 +503,31 @@ function showStextDetail(pos) {
 }
 
 function deleteStck(stckName) {
-    var extStockName = JSON.parse(localStorage.getItem('stext_name'));
+    var extStockNameDelete = JSON.parse(localStorage.getItem('stext_name'));
     var tempStockName = new Array();
-    $.each(extStockName, function (index, item) {
+    $.each(extStockNameDelete, function (index, item) {
         if (item != stckName) {
             tempStockName.push(item);
         }
     });
     localStorage.setItem('stext_name', JSON.stringify(tempStockName));
-    stockExtGetDetails();
+
+    var deleteStockDetailsArry = new Array();
+    var deleteStockDetailsArryTemp = new Array();
+    if (localStorage.getItem('stext_details') == undefined) {
+        deleteStockDetailsArry = new Array();
+    } else {
+        deleteStockDetailsArry = JSON.parse(localStorage.getItem('stext_details'));
+    }
+
+    if (deleteStockDetailsArry.length > 0) {
+        $.each(deleteStockDetailsArry, function (index, item) {
+            if (item.symbol != stckName) {
+                deleteStockDetailsArryTemp.push(item);
+            }
+        });        
+    }
+
+    localStorage.setItem('stext_details', JSON.stringify(deleteStockDetailsArryTemp));
+    stockExtGetDetails(false);
 }
