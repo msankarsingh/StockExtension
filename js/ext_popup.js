@@ -1,7 +1,4 @@
 $(document).ready(function ($) {
-    $("#stext_main_div").show();
-    $("#stext_setting_div").hide();
-    $("#stext_more_details").hide();
 
     $("#stext_setting_icon").off("click");
     $("#stext_setting_icon").on("click", function (e) {
@@ -52,7 +49,15 @@ $(document).ready(function ($) {
         }
     });
 
-    stockExtGetDetails(false);
+    $("#stext_setting_div").hide();
+    $("#stext_more_details").hide();
+    $("#StockMainBody").block({
+        message: '<span style="font-size:20px;font-family: lucida grande,tahoma,verdana,arial,sans-serif;">Loading ...</span></h1>',
+    });
+    setTimeout(function () {
+        $("#stext_main_div").show();
+        stockExtGetDetails(false);
+    }, 1000);    
 });
 
 function wextSearchStock() {
@@ -128,7 +133,7 @@ function getNewStextDetails(stname) {
     tempstockName.push(stname);
     var extStockName = JSON.parse(localStorage.getItem('stext_name'));
     $.each(extStockName, function (index, item) {
-        if (tempstockName.length < 5) {
+        if (tempstockName.length < 10) {
             if (item != stname) {
                 tempstockName.push(item);
             }
@@ -159,7 +164,7 @@ function createStextTable() {
     }
 
     //Update Counter
-    $("#stext_counter").html(stextMainArryCreateTable.length + "/5");
+    $("#stext_counter").html(stextMainArryCreateTable.length + "/10");
 
     $("#StockMainTable").html("");
     if (extStockNameCreateTable.length == 0) {
@@ -176,9 +181,6 @@ function createStextTable() {
 
     if (stextMainArryCreateTable.length > 0) {
         var tr = $("<tr id='StockExtHeaderRow'>");
-        var td = $("<th>");
-        td.text("Symbol");
-        td.appendTo(tr);
 
         var td = $("<th>");
         td.text("Name");
@@ -207,15 +209,7 @@ function createStextTable() {
 
         var tr = $("<tr>");
 
-        //Symbol td
-        var td = $("<td>");
-        td.html(
-            (item.symbol != null ? item.symbol : "n/a")
-            + "<br/>" +
-            (item.StockExchange != null ? item.StockExchange : "n/a")
-            );
-        td.appendTo(tr);
-
+        //Symbol
         if (item.symbol != null) {
             var prdimg = '<img src="http://chart.finance.yahoo.com/t?s=' + item.symbol + '&amp;lang=en-US&amp;region=US&amp;width=300&amp;height=180" width="1" height="1">';
             $("#stext_preloaded_div").append(prdimg);
@@ -223,8 +217,18 @@ function createStextTable() {
 
         //Name Td
         var td = $("<td>");
-        td.text(
-            item.Name != null ? item.Name : "n/a"
+        td.html(
+            (item.Name != null ? item.Name : "n/a")
+            +
+            "<br/>"
+            +
+            "<b>"
+            +
+            (item.symbol != null ? item.symbol : "n/a")
+            + " - " +
+            (item.StockExchange != null ? item.StockExchange : "n/a")
+            +
+            "</b>"
             );
         td.appendTo(tr);
 
@@ -241,19 +245,20 @@ function createStextTable() {
         td.appendTo(tr);
 
         //Change
-        if (item.ChangeRealtime != null) {
+        if (item.Change != null) {
             var img = ""
-            var changeValSymbol = item.ChangeRealtime.substring(0, 1);
+            var changeNum = parseFloat(item.Change);
             var td_class = "indexup";
-            if (changeValSymbol == "+") {
-                img = '<img src="image/IndexUp.png" />';
-                td_class = "indexup";
-            } else {
+            if (changeNum < 0) {
                 img = '<img src="image/IndexDown.png" />';
                 td_class = "indexdown";
             }
+            else {
+                img = '<img src="image/IndexUp.png" />';
+                td_class = "indexup";
+            }
 
-            var Change = item.ChangeRealtime.replace("+", "");
+            var Change = item.Change.replace("+", "");
             Change = Change.replace("-", "");
 
             var PercentChange = (item.PercentChange != null ? item.PercentChange.replace("+", "") : "n/a");
@@ -460,7 +465,7 @@ function showStextDetail(pos) {
         );
 
     $("#stext_bid").html(
-        stextdetail.BidRealtime != null ? stextdetail.BidRealtime : "n/a"
+        stextdetail.BidRealtime != null ? stextdetail.BidRealtime : (stextdetail.Bid != null ? stextdetail.Bid : "n/a")
         );
 
     $("#stext_vol").html(
@@ -468,7 +473,7 @@ function showStextDetail(pos) {
         );
 
     $("#stext_ask").html(
-        stextdetail.AskRealtime != null ? stextdetail.AskRealtime : "n/a"
+        stextdetail.AskRealtime != null ? stextdetail.AskRealtime : (stextdetail.Ask != null ? stextdetail.Ask : "n/a")
         );
 
     $("#stext_avgvol").html(

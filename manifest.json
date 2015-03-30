@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Stock Market Tracker",
   "description": "Stock Market Tracker",
-  "version": "1.1",
+  "version": "1.6",
   "background": { 
 	"page": "ext_background.html"
   },
